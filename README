@@ -1,0 +1,379 @@
+=========================================================================================
+Nume:    Rosu
+Prenume: Gabriel - David
+Grupa:   321CD
+Data:    06.11.2017
+Materie: POO, anul 2, semestrul 1
+=========================================================================================
+                                         Tema 1
+                                     League of OOP
+=========================================================================================
+    CUPRINS
+-----------------------------------------------------------------------------------------
+    [1] INTRODUCERE
+    [2] MOD DE ABORDARE
+    [3] CUM? DE CE? (CLASE SI PACHETE)
+    [4] CLASE SI METODE
+    [5] MENTIUNI
+    [6] FEEDBACK
+=========================================================================================
+[1]    INTRODUCERE
+-----------------------------------------------------------------------------------------
+    Aplicatia reprezinta un joc 2D, conform cerintei temei 1.
+    Limbajul de programare utilizat: Java.
+    In realizarea acestei teme am incercat sa pun in practica ceea ce am invatat la 
+aceasta materie, dar si sa dobandesc cunostinte noi si sa imi dezvolt gandirea in sensul 
+conceptelor POO (obiective pe care tema le sustine si indeplineste).
+=========================================================================================
+[2]    MOD DE ABORDARE
+-----------------------------------------------------------------------------------------
+[*] Creare joc
+        Initial, citesc toate datele din fisierul de intrare.
+        Jucatorii sunt retinuti intr-un vector, si sunt accesati dupa index.
+        Rundele sunt salvate in siruri de caractere.
+
+[*] Descriere joc
+    
+    Pentru fiecare runda:
+        Pentru fiecare jucator:
+            Daca este in viata si are overtime, aplic overtime
+        Pentru fiecare jucator:
+            Daca este in viata si se poate misca, atunci se va muta
+        Pentru fiecare doi jucatori:
+            Daca jucatorii sunt in viata, se vor ataca reciproc
+            Se verifica castigatorul
+
+    Detalii:
+            Cum are loc atacul? Fiecare skill are un camp denumit damage.
+            Atunci cand doi jucatori se ataca, fiecare isi va calcula valoarea atacului
+        in functie de celalat jucator si de teren, adica se calculeaza atacul si se
+        aplica modificatoarele, dupa care se adauga rezultatul in campul damage, apoi se
+        rotunjeste. In functie de skill se adauga overtime pentru rundele urmatoare.
+        Pasul urmator este scaderea din viata jucatorului, a damage-ul pe care adversarul 
+        i-l aplica. La sfarsitul rundei, se verifica daca exista castigator. 
+        In acest caz, acesta va primi experienta si i se va calcula nivelul. Cat timp un
+        jucator creste in nivel, si abilitatile lui vor evolua, fiecare in felul ei.
+
+[*] Incheiere joc
+    
+        Pentru fiecare jucator:
+                Daca este viu, se va afisa dupa model_jucator_viu,
+            altfel se va afisa dupa model_jucator_mort.
+=========================================================================================
+[3]    CUM? DE CE? (CLASE SI PACHETE)
+-----------------------------------------------------------------------------------------
+    Conform enuntului temei, exista un pachet principal, "main", care contine doar
+clasa "Main".
+        
+[*] CUM? Structura dupa pachete si clase principale:
+
+    src
+    |
+    |-main (Main)
+    |
+    |-game (Game, Overtime)
+    |    |
+    |    |-map (Map, Direction, Position, Zone)
+    |    |
+    |    |-characters (Character, Skill)
+    |    |    |
+    |    |    |-knight
+    |    |    |
+    |    |    |-pyromancer
+    |    |    |
+    |    |    |-rogue
+    |    |    |
+    |    |    |-wizard
+
+        Pentru fiecare pachet al unui caracter exista cate o clasa cu numele clasei de
+    jucator si un cate pachet numit "skills", avand fiecare cate doua clase
+    corespunzatoare pentru cele doua abilitati.
+
+[*] DE CE? 
+        Am ales aceasta implementare peste ca este una intuitiva, reutilizabila, usor
+    accesibila, folosind modificatoare de acces corespunzatoare.
+=========================================================================================
+[4]    CLASE SI METODE
+-----------------------------------------------------------------------------------------
+[*] Main (src->main)
+    
+    Descriere:
+            Primeste ca argumente numele fisierelor de intrare si de iesire.
+            Citesc datele de intrare, creez un joc nou, apoi are loc jocul propriu-zis,
+        dupa care creez fisierul de iesire si inchid fisierele deschise.
+
+    Exceptii:
+            Eroare in cazul in care fisierele I/O nu exista.
+-----------------------------------------------------------------------------------------
+[*] Game (src->game)
+    
+    Variabile:
+        nume        |      tip       | descriere
+        --------------------------------------------------
+        map         |      Map       | harta
+        noPlayers   |      int       | numarul de jucatori
+        noRounds    |      int       | numarul de runde
+        players     |   Character[]  | jucatorii
+        moves       |  Direction[][] | mutarile
+
+    Constructori:
+        Game(FileReader)
+                Creez un nou joc: creez harta, citesc numarul de jucatori, jucatorii
+            si mutarile.
+    
+    Metode semnificative:
+        play()
+                Are loc jocul propriu-zis: aplicarea overtime-urilor, mutarea jucatorilor
+               si atacurile dintre ei.
+        
+        fight(Character, Character)
+                Are loc lupta dintre doi jucatori.
+        
+        updateSkills(Character, Character)
+                Se actualizeaza ambele skill-uri ale unui jucator in functie de
+               adversarul sau.
+        
+        useSkills(Character, Character)
+                Se folosesc ambele skill-uri pe adversar.
+        
+        checkIfWin(Character, Character)
+                Se verifica daca unul dintre jucatori a castigat.
+        
+        printOut(FileWriter)
+                Se afiseaza la fisierul de iesire output-ul corespunzator.
+
+    Exceptii:
+            Eroare in cazul in care fisierele I/O nu exista.
+-----------------------------------------------------------------------------------------
+[*] Map (src->game->map)
+    
+    Variabile:
+        nume        |      tip       | descriere
+        ------------------------------------------------
+        zone        |    Zone[][]    | tipurile de teren
+
+    Constructori:
+        Map(FileReader)
+                Citesc datele din fisierul de intrare (zonele).
+
+    Metode semnificative:
+        getZone(Position)
+                Intorc tipul de zona de la pozitia primita ca argument.
+
+    Exceptii:
+            Eroare in cazul in care fisierele I/O nu exista.
+-----------------------------------------------------------------------------------------
+[*] Zone (src->game->map)
+    
+    Descriere:
+            Este un enum cu tipurile de teren: LAND, VOLCANIC, DESERT si WOODS.
+
+    Metode semnificative:
+        equals(Zone)
+                Verifica daca zona curenta este aceeasi cu cea primita ca argument si 
+            intoarce true/ false.
+-----------------------------------------------------------------------------------------
+[*] Direction (src->game->map)
+    
+    Descriere:
+            Este un enum cu directiile: UP, DOWN, LEFT, RIGHT si NODIRECTION.
+-----------------------------------------------------------------------------------------
+[*] Position (src->game->map)
+    
+    Variabile:
+        nume        |      tip       | descriere
+        ------------------------------------------------
+        x           |      int       | numarul liniei
+        y           |      int       | numarul coloanei
+
+    Constructori:
+        Position(int, int)
+                Se creeaza o noua pozitie in functie de argumentele primite.
+        
+        Position(Position)
+                Se creeaza o clona a pozitiei primite.
+
+    Metode semnificative:
+        movePositionWith(int, int)
+                Se adauga la pozitia curenta cele doua variabile primite.
+-----------------------------------------------------------------------------------------
+[*] Character (src->game->characters)
+    
+    Descriere:
+                Aceasta clasa abstracta este creata pentru a fi extinsa de fiecare tip de 
+            jucator. De aceea nu exista nicio instanta a acestei clase.
+                Clase care o extind: Wizard, Rogue, Pyromancer, Knight.
+[!]                Implementeaza: Visitable (vezi MENTIUNI - Double-dispatch).
+                Fiecare tip de jucator are urmatoarele campuri descrise.
+
+    Variabile:
+        nume            |      tip       | descriere
+        -----------------------------------------------------------
+        position        |    Position    | pozitia jucatorului
+        hp              |      int       | "viata"
+        maxHp           |      int       | viata maxima
+        increaseHp      |      int       | valoarea de increment
+                                           la cresterea in nivel
+        terrainModifier |     double     | modificatorul de teren
+        level           |      int       | nivelul jucatorului
+        xp              |      int       | experienta
+        stun            |    boolean     | Jucatorul se/nu se poate
+                                           misca runda urmatoare
+        skills          |     Skill[]    | Abilitatile
+        overtime        |    Overtime    | atacul prelungit
+
+    Metode semnificative:
+        initCharacter(Position, int, int, double)
+                In functie de argumente se creaza un nou jucator.
+                Metoda este accesata din constructorul claselor care extind clasa
+            Character.
+
+        applyOvertime()
+                Daca exista atac prelungit, acesta este aplicat jucatorului.
+
+        movePosition(Direction)
+                Muta jucatorul accesand miscarea curenta.
+
+        setOvertime(Overtime)
+                Seteaza un nou atac prelungit pentru urmatoarele runde.
+
+        setXp(Character)
+                Atunci cand jucatorul isi infrange adversarul (primit ca argument),
+            acesta primeste experienta in functie de nivelele jucatorilor.
+
+        tryLevelUp()
+                Dupa primirea unui numar de puncte de experienta, se incearca cresterea
+            nivelului jucatorului dupa formala stabilita.
+
+        updateSkill(Character, Map)
+                In functie de adversar si harta, se actualizeaza toate abilitatile
+            jucatorului curent.
+
+        useSkill(Character)
+                Se folosesc ambele abilitati pe adversar.
+
+[!]     Pe scurt despre clasele care mostenesc aceasta clasa:
+                Fiecare tip (clasa) de jucator extinde aceasta clasa.
+                Dupa caz, ele suprascriu metode din clasa Character, cu scopul de a evita
+            cod duplicat sau cod greu si neintuitiv (folosirea Override pentru
+            a evita "instanceof").
+-----------------------------------------------------------------------------------------
+[*] Skill (src->game->characters)
+
+    Descriere:
+            Aceasta clasa abstracta este mostenita de fiecare abilitate. Orice tip de
+        jucator are cate doua abilitati. Fiecare abilitate se afla intr-o clasa separata,
+        care extinde Skill. Pe langa variabilele din Skill, unele abilitati au variabile
+        in plus (exemplu: percent).
+
+    Variabile:
+        nume               |      tip       | descriere
+        -----------------------------------------------------------------
+        racePyromancer     |     double     | modificator anti-Pyromancer
+        raceKnight         |     double     | modificator anti-Knight
+        raceWizard         |     double     | modificator anti-Wizard
+        raceRogue          |     double     | modificator anti-Rogue
+        raceModifier       |     double     | modificator final
+        terrainModifier    |     double     | modificator de teren
+        damage             |     double     | valoarea atacului
+        increaseBaseDamage |     double     | valoarea de crestere a
+                                              atacului la un nou nivel
+        overtime           |     Overtime   | overtime-ul abilitatii
+
+    Metode semnificative:
+        
+        initSkill(double, double, double, double)
+                Primeste ca argumente cei 4 modificatori si initializeaza o noua
+            abilitate. Este apelata doar din Constructorul claselor ce mostenesc clasa
+            Skill.
+
+        updateSkill(Character, Character, Map)
+                Actualizeaza damage-ul si overtime-ul abilitatii curente.
+
+        updateModifiers(Character, Character, Map)
+                Actualizeaza modificatoarele in functie de parametrii.
+
+        levelUpBaseDamage()
+                Creste in valoare doar atacul de baza. 
+
+[!]        levelUpSkill()
+                    In metoda levelUpSkill se actualizeaza atat valorile particulare
+                fiecarei abilitati, cat si valoarea atacului de baza, prezent la toate
+                abilitatile (posibil 0), prin apelarea metodei levelUpBaseDamage.
+                Se foloseste Override.
+-----------------------------------------------------------------------------------------
+[*] DeflectSkillHandler (src->game->characters)
+    
+    Descriere:
+            Este o clasa care implementeaza interfata Visitor din design pattern-ului
+        Visitor.
+
+    Utilitate:
+            Reprezinta o metoda eleganta de a modela probleme, folosind astfel conceptul
+        double-dispatch (vezi MENTIUNI - Double-dispatch).
+
+    Legaturi:
+            Interfata Visitable si interfata Visitor.
+=========================================================================================
+[5]    MENTIUNI
+-----------------------------------------------------------------------------------------
+[*] Double-dispatch
+    
+        Conform textului problemei, un Wizard nu poate folosi abilitatea Deflect contra
+      altui Wizard, deci trebuia sa aflu daca adversarul este sau nu Wizard. O metoda ar fi
+      fost folosirea "instanceof", insa ar fi putut deveni complicata in alte situatii.
+      De aceea, am ales utilizarea conceptului double-dispatch si a design pattern-ului
+      Visitor (si Overload).
+
+    Concret
+            In momentul in care unul dintre jucatori este Wizard, inainte de a calcula
+        valoarea atacului Deflect, verific daca adversarul este Wizard. In acest caz,
+        valoarea atacului devine 0, altfel aceasta se va calcula.
+
+    Exemplu: 
+            "enemy.accept(deflectSkillHandler)" - intoarce true daca jucatorul accepta sa
+        i se aplice Deflect (adica nu este Wizard) sau false, daca jucatorul nu accepta
+        (este Wizard).
+
+[!]            Astfel, tin sa mentionez ca, in opinia mea, am implementat bonusul
+        problemei.
+            Pe langa aceasta modelare, am evitat utilizarea "instanceof" in mai multe
+           locuri, folosind Override (exemplu: aplicarea modificatorului de rasa (clasa),
+           vezi [Avoid instanceof] in comentariile din codul sursa).
+    
+[!]    Exemplu concret:
+
+            private void updateRaceModifier(final Character enemy) {
+                enemy.updateRaceModifier(this);
+            }
+
+            Aici, enemy isi alege parametru din "this" (Skill) si il seteaza ca fiind
+        activ pe abilitatea respectiva.
+-----------------------------------------------------------------------------------------
+[*] JavaDoc si Comentarii
+    
+        Pe langa acest fisier README, sunt prezente in codul sursa atat comentarii in
+    liniile de cod, cat si comentarii pentru generarea de JavaDoc, pentru o mai buna
+    intelegere a codului. (de vazut [Double-dispatch] si [Avoid instanceof]).
+-----------------------------------------------------------------------------------------
+[*] Plagiat
+    
+        Codul sursa imi apartine in totalitate, cat si modelarea problemei.
+        Atat codul sursa, cat si modelarea problemei, sunt creatie proprie, nefiind
+    inspirate sau copiate din surse externe.
+=========================================================================================
+[6]    FEEDBACK
+-----------------------------------------------------------------------------------------
+[+]     Tema mi s-a parut foarte instigatoare din punct de vedere intelectual  si de
+    actualitate, cu un text destul de clar. Aceasta isi indeplineste cu succes scopul,
+    acela de a pune in practica cunostintele acumulate de-alungul cursurilor,
+    laboratoarelor, dar si studiului individual.
+
+[-]     Initial, am intampinat dificultati in ceea ce priveste aproximarile. Cred ca un 
+    exemplu mai concret ar fi fost foarte util (primit odata cu tema).
+
+[+]     Testele foarte bine facute, debugging destul de usor pe ele (ma refer la 
+    existenta tuturor posibilitatilor de lupta intre doi jucatori).
+=========================================================================================
+                                        SFARSIT
+=========================================================================================

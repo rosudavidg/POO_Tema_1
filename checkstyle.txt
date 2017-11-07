@@ -1,0 +1,4 @@
+Starting audit...
+[ERROR] /home/david/IdeaProjects/FINAL/src/checker/checkstyle/poo_checks.xml:53:1: File contains tab characters (this is the first instance). [FileTabCharacter]
+Audit done.
+Checkstyle ends with 1 errors.
